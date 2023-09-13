@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Failed suite [Suite]" guice-stage="DEVELOPMENT">
-  <test thread-count="5" name="Test(failed)">
+  <test thread-count="5" name="DashboardPage(failed)">
     <classes>
-      <class name="first.Demoone">
+      <class name="first.Moods">
         <methods>
+          <include name="Loginpage"/>
           <include name="openOticons"/>
-          <include name="dashboardpage"/>
+          <include name="stylepage"/>
+          <include name="Moodpage"/>
         </methods>
-      </class> <!-- first.Demoone -->
+      </class> <!-- first.Moods -->
+      <class name="first.DashboardPage">
+        <methods>
+          <include name="Loginpage"/>
+          <include name="openOticons"/>
+          <include name="stylepage"/>
+        </methods>
+      </class> <!-- first.DashboardPage -->
     </classes>
-  </test> <!-- Test(failed) -->
+  </test> <!-- DashboardPage(failed) -->
 </suite> <!-- Failed suite [Suite] -->

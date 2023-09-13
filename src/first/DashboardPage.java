@@ -3,6 +3,8 @@ package first;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +17,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.asynchttpclient.uri.Uri;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,7 +25,7 @@ import org.json.simple.parser.ParseException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;	
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
@@ -33,7 +36,9 @@ import org.testng.annotations.Test;
 @Test
 public class DashboardPage {
 
-	WebDriver driver;
+	static WebDriver driver;
+	static String accessToken;
+	 String tempaccessToken;
 
 	@BeforeTest
 	public void openOticons() {
@@ -46,7 +51,7 @@ public class DashboardPage {
 		driver.manage().window().maximize();
 
 	}
-
+	@Test
 	public void Loginpage() throws Exception {
 
 		JSONParser parser = new JSONParser();
@@ -55,7 +60,7 @@ public class DashboardPage {
 		String Exp_LoginTitle = "Login - Oticons SYNC";
 
 		String Act_LoginTitle = driver.getTitle();
-
+		
 		String apiUrl = "https://sync-api-development.44db.com/api/v1/auth/login";
 		String email = "riddhi.p@thinkwik.com";
 		String password = "12345678";
@@ -80,11 +85,10 @@ public class DashboardPage {
 		//
 		MultipartEntityBuilder multipartEntityBuilder1 = createRequestObj(data, multipartEntityBuilder);
 
-		
 		// Set the multipart entity as the request body
 		HttpEntity requestEntity = multipartEntityBuilder1.build();
 		httpPost.setEntity(requestEntity);
-
+		
 		// Set the Content-Type header with the automatically generated boundary
 		httpPost.setHeader("X-Client-Id", clientId);
 		httpPost.setHeader("Content-Type", requestEntity.getContentType().getValue());
@@ -110,7 +114,7 @@ public class DashboardPage {
 			driver.findElement(By.xpath("/html/body/div[1]/main/div[2]/div/main/div/div/div/div/div[2]/form/button"))
 					.click();
 			Thread.sleep(10000);
-			
+
 			// Parse the JSON response
 			// JSONParser parser = new JSONParser();
 			try {
@@ -134,7 +138,7 @@ public class DashboardPage {
 					Boolean isMfaEnabled = (Boolean) user.get("isMfaEnabled");
 
 					// Get Access Token
-					String accessToken = (String) userData.get("accessToken");
+					accessToken = (String) userData.get("accessToken");
 
 					System.out.println(accessToken);
 
@@ -157,9 +161,9 @@ public class DashboardPage {
 					} else {
 
 						String Exp_DashboardTitle = "Oticons SYNC: Music Licensing For Video Production And Film";
-					
+
 						String Act_DashboardTitle = driver.getTitle();
-						
+
 						if (Act_DashboardTitle.equals(Exp_DashboardTitle)) {
 
 							System.out.println("Dashboard page  is  found");
@@ -198,6 +202,7 @@ public class DashboardPage {
 							Map<String, String> accessTokenData = new HashMap<>();
 
 							data.put("X-Oticons-Auth-Token", accessToken);
+							
 
 							MultipartEntityBuilder multipartEntityBuildernew = MultipartEntityBuilder.create();
 
@@ -223,7 +228,6 @@ public class DashboardPage {
 								JSONObject getcomposerdatajsonObjects = (JSONObject) parser
 										.parse(getComposerjsonResponse);
 
-								
 								JSONObject getData = (JSONObject) getcomposerdatajsonObjects.get("data");
 								JSONArray getComposerDataOfMonth = (JSONArray) getData.get("composer");
 
@@ -244,7 +248,6 @@ public class DashboardPage {
 								Assert.assertEquals(Act_Artistofthemonthname, Exp_Artistofthemonthname,
 										"Artist of the month name is mismatch");
 
-								
 								// set payload Value For Artist of the month data
 								Map<String, String> queryHeadervalue = new HashMap<>();
 
@@ -253,6 +256,7 @@ public class DashboardPage {
 								queryHeadervalue.put("sortBy", "ALPHABETICAL");
 								queryHeadervalue.put("sortMode", "asc");
 								queryHeadervalue.put("composerIds[0]", composerID);
+								// queryHeadervalue.put("dynamicId", email);
 
 								String queryApiURL = "https://sync-api-development.44db.com/api/v1/track/query";
 								// set Access Token Value
@@ -323,7 +327,6 @@ public class DashboardPage {
 								JSONObject getFavouriteSongjsonResponse = (JSONObject) parser
 										.parse(getFavouriteSongjsonObject);
 
-								
 								JSONObject getFavouriteSongData = (JSONObject) getFavouriteSongjsonResponse.get("data");
 								JSONArray getFavouriteTrackJson = (JSONArray) getFavouriteSongData.get("tracks");
 								int lenghtofFavouriteTrack = getFavouriteTrackJson.size();
@@ -352,7 +355,6 @@ public class DashboardPage {
 
 										if (isUserFavourite && isFavListAvailable) {
 
-											
 											for (int j = 0; j < lenghtofFavouriteTrack; j++) {
 												JSONObject getFavouriteElement = (JSONObject) getFavouriteTrackJson
 														.get(i);
@@ -375,7 +377,7 @@ public class DashboardPage {
 
 								} else {
 
-									System.out.println(" Not Found , shows 400");
+									System.out.println("Not Found , shows 400");
 
 								}
 
@@ -383,7 +385,6 @@ public class DashboardPage {
 								j.executeScript("window.scrollBy(0,700)");
 
 								Thread.sleep(5000);
-								
 
 								// Button for Follow / Unfollow
 								WebElement buttonForFollow = driver.findElement(By.xpath(
@@ -466,6 +467,8 @@ public class DashboardPage {
 				e.printStackTrace();
 
 			}
+			
+			 tempaccessToken = "12345555";
 
 			Thread.sleep(5000);
 
@@ -526,7 +529,10 @@ public class DashboardPage {
 
 	}
 
+	
+	
 	// make a function for GET Method
+	@Test
 	public static HttpURLConnection createGetRequest(String apiUrl, String accessToken) throws Exception {
 
 		String clientId = "someid";
@@ -542,41 +548,274 @@ public class DashboardPage {
 		return connection;
 	}
 
-	@AfterTest
-	public void stylepage() throws InterruptedException {
+	@Test
+	public void   stylepage() throws InterruptedException, ClientProtocolException, IOException, ParseException {
 
-		
-        Actions browse = new Actions(driver);
-        WebElement browseButton = driver.findElement(By.xpath("/html/body/div/main/div[2]/header/nav/div/div/ul/li[1]/a"));
-        
-        browse.moveToElement(browseButton, 10, 20).build().perform();
-        Thread.sleep(5000);
-        
-		//Hover effect on Browse 
-		WebElement styleButton = driver.findElement(By.xpath("/html/body/div/main/div[2]/header/nav/div/div/ul/li[1]/div/ul[2]/li/a"));
-		browse.moveToElement(styleButton,10,20).build().perform();
-        Thread.sleep(5000);
-	
+		Actions browse = new Actions(driver);
+		WebElement browseButton = driver
+				.findElement(By.xpath("/html/body/div/main/div[2]/header/nav/div/div/ul/li[1]/a"));
+
+		browse.moveToElement(browseButton, 10, 20).build().perform();
+		Thread.sleep(5000);
+
+		// Hover effect on Browse
+		WebElement styleButton = driver
+				.findElement(By.xpath("/html/body/div/main/div[2]/header/nav/div/div/ul/li[1]/div/ul[2]/li/a"));
+		browse.moveToElement(styleButton, 10, 20).build().perform();
+		Thread.sleep(5000);
+
 		styleButton.click();
-				
-        Thread.sleep(5000);
-        
-        WebElement getActGenresTitle = driver.findElement(By.xpath("/html/body/div/main/div[2]/div/div[2]/div/h1"));
-       String Act_GenresTitle =   getActGenresTitle.getText();
-       String Exp_Genres_Title = "Genres & Stories";
-      
-       if(Act_GenresTitle.equals(Exp_Genres_Title)) {
-    	   
-    	   System.out.println("now, Style page is open");
-    	   
-       }
-              
-           		
+
+		Thread.sleep(5000);
+
+		WebElement getActGenresTitle = driver.findElement(By.xpath("/html/body/div/main/div[2]/div/div[2]/div/h1"));
+		String Act_GenresTitle = getActGenresTitle.getText();
+		String Exp_Genres_Title = "Genres & Stories";
+
+		if (Act_GenresTitle.equals(Exp_Genres_Title)) {
+
+			// System.out.println("now, Style page is open");
+
+			WebElement firstEleofGenres = driver
+					.findElement(By.xpath("/html/body/div[1]/main/div[2]/div/div[4]/div/div/div[2]/div/div[1]/div"));
+			// click on First element of Genres & Stories page
+			/// html/body/div/main/div[2]/div/div[4]/div/div/div[2]/div/div[1]/div/div[1]
+
+			firstEleofGenres.click();
+			Thread.sleep(5000);
+
+			String getUrlForGenresPage = driver.getCurrentUrl();
+			// System.out.println(getUrlForGenresPage);
+			String yoururl = getUrlForGenresPage;
+			// URI theUri = new URI(yoururl);
+			// String id = HttpUtility.ParseQueryString(theUri.Query).Get("ID");
+			// Console.WriteLine(jid);
+			try {
+				URI theUri = new URI(yoururl);
+				String query = theUri.getQuery();
+				System.out.println(query);
+
+				if (query != null) {
+					String[] queryParams = query.split("&");
+					for (String param : queryParams) {
+						String[] keyValue = param.split("=");
+
+						System.out.println(keyValue);
+						if (keyValue.length == 2 && keyValue[0].equals("id")) {
+							String id = keyValue[1];
+							System.out.println("ID: " + id);
+
+							String apiUrlForGenresData = "https://sync-api-development.44db.com/api/v1/track/query";
+
+							// set payload Value For Genres data
+							Map<String, String> genresData = new HashMap<>();
+
+							genresData.put("page", "1");
+							genresData.put("limit", "10");
+							genresData.put("sortMode", "asc");
+							genresData.put("genresStyleIds[0]", id);
+
+							// set Access Token Value
+							Map<String, String> genresDataHeaderObject = new HashMap<>();
+
+							genresDataHeaderObject.put("X-Oticons-Auth-Token", accessToken);
+
+							MultipartEntityBuilder multipartEntityBuildernew = MultipartEntityBuilder.create();
+
+							MultipartEntityBuilder callsecondAPI = createRequestObj(genresData,
+									multipartEntityBuildernew);
+
+							HttpEntity requestEntitynew = callsecondAPI.build();
+
+							System.out.println(requestEntitynew);
+
+							// call a Function and get composer Data
+							HttpResponse getGenresrData = getReponse(requestEntitynew, apiUrlForGenresData,
+									genresDataHeaderObject);
+							System.out.println("Get getGenresrData Response " + getGenresrData);
+
+							Integer StatusCodeOfGenresData = getGenresrData.getStatusLine().getStatusCode();
+							System.out.println("Get getGenresrData Response Status Code" + StatusCodeOfGenresData);
+
+							JSONParser parser = new JSONParser();
+
+							if (StatusCodeOfGenresData == 200) {
+
+								HttpEntity getGenresentity = getGenresrData.getEntity();
+								String getGenresjsonResponse = EntityUtils.toString(getGenresentity);
+
+								JSONObject getGenresDataJsonObjects = (JSONObject) parser.parse(getGenresjsonResponse);
+
+								JSONObject getGenresData = (JSONObject) getGenresDataJsonObjects.get("data");
+
+								JSONArray getGenresTrackJson = (JSONArray) getGenresData.get("tracks");
+								JSONObject getFirstObject = (JSONObject) getGenresTrackJson.get(0);
+
+								String getSongId = (String) getFirstObject.get("id");
+
+								System.out.println("Song Name Of Genres " + getSongId);
+
+								int lenghtofGenresTrack = getGenresTrackJson.size();
+
+								for (int i = 0; i < lenghtofGenresTrack; i++) {
+									JSONObject getTrackElement = (JSONObject) getGenresTrackJson.get(i);
+
+									String getSongName = (String) getTrackElement.get("name");
+
+									//String getFirstSongId = (String)getSongId.get([0]);
+
+									System.out.println("Song Name Of Genres " + getSongName);
+
+									for (int j = 1; j <= 6; j += 2) {
+
+										WebElement elementsOfGenresList = driver.findElement(By.xpath(
+												"/html/body/div/main/div[2]/div/div[4]/div/div/div[2]/div/div/div[" + j
+														+ "]/div[1]/div[2]/h4"));
+
+										String getElementSongName = elementsOfGenresList.getText();
+										System.out.println(getElementSongName);
+
+										if (getSongName.equals(getElementSongName)) {
+
+											System.out.println("Song Name is Match");
+											break;
+
+										}
+
+									}
+
+								}
+
+								WebElement addToCartIcon = driver.findElement(By.xpath(
+										"/html/body/div/main/div[2]/div/div[4]/div/div/div[2]/div/div/div[1]/div[3]/div/button"));
+
+								addToCartIcon.click();
+
+								WebElement getTitleNew = driver.findElement(
+										By.xpath("/html/body/div[3]/div/div[1]/div/div/div/div[1]/div/div[1]/h2"));
+
+								String Act_TitleOfAddToCart = getTitleNew.getText();
+
+								System.out.println(Act_TitleOfAddToCart);
+
+								String Exp_TitleOfAddToCart = "Select your Production & License Type";
+
+								WebElement getAdvertisePageText = driver.findElement(
+										By.xpath("/html/body/div[3]/div/div[1]/div/div/div/div[1]/div/div[2]/ul/li"));
+
+								browse.moveToElement(getAdvertisePageText, 10, 20).build().perform();
+								Thread.sleep(5000);
+
+								String Act_AdvertiseText = getAdvertisePageText.getText();
+
+								String Exp_AdvertiseText = "Advertise";
+
+								Thread.sleep(5000);
+
+								System.out.println((Act_TitleOfAddToCart.equals(Exp_TitleOfAddToCart)));
+
+								if (Act_AdvertiseText.equals(Exp_AdvertiseText)) {
+
+									getAdvertisePageText.click();
+
+									System.out.println("Advertise button Clicked");
+
+									// Call API For Advertise Data
+
+									String apiUrlForAdvertiseData = "https://sync-api-development.44db.com/api/v1/license/plan";
+
+									// set payload Value For Genres data
+									Map<String, String> advertiseData = new HashMap<>();
+
+									advertiseData.put("productionType[0]", "ADVERTISING");
+									advertiseData.put("trackId", getSongId);
+
+									// set Access Token Value
+									Map<String, String> advertiseDataHeaderObject = new HashMap<>();
+
+									advertiseDataHeaderObject.put("X-Oticons-Auth-Token", accessToken);
+
+									MultipartEntityBuilder multipartEntityBuilderForAdvertise = MultipartEntityBuilder
+											.create();
+
+									MultipartEntityBuilder createMultipartData = createRequestObj(advertiseData,
+											multipartEntityBuilderForAdvertise);
+
+									HttpEntity requestAdvertiseEntity = createMultipartData.build();
+
+									System.out.println(requestAdvertiseEntity);
+
+									// call a Function and get composer Data
+									HttpResponse getAdvertiseData = getReponse(requestAdvertiseEntity,
+											apiUrlForAdvertiseData, advertiseDataHeaderObject);
+									System.out.println("Get getGenresrData Response " + getAdvertiseData);
+
+									Integer StatusCodeOfAdvertiseData = getAdvertiseData.getStatusLine()
+											.getStatusCode();
+									System.out
+											.println("Get Advertise Response Status Code" + StatusCodeOfAdvertiseData);
+
+									JSONParser parserAdvertise = new JSONParser();
+
+									if (StatusCodeOfGenresData == 200) {
+
+										HttpEntity getAdvertiseEntity = getAdvertiseData.getEntity();
+										String getAdvertiseJsonResponse = EntityUtils.toString(getAdvertiseEntity);
+
+										JSONObject getAdvertiseDataJsonObjects = (JSONObject) parserAdvertise
+												.parse(getAdvertiseJsonResponse);
+
+										System.out.println(getAdvertiseDataJsonObjects);
+
+										System.out.println("get Advertise data ");
+
+										JSONObject getAdvertiseJsonData = (JSONObject) getAdvertiseDataJsonObjects
+												.get("data");
+										
+									
+										/// /html/body/div[3]/div/div[1]/div/div/div/div[1]/div/div[2]/ul/li[2]
+										Thread.sleep(5000);
+										
+										WebElement  getBudgetButton = driver.findElement(
+												By.xpath("/html/body/div[3]/div/div[1]/div/div/div/div[1]/div/div[2]/ul/li[2]"));
+										
+										
+										getBudgetButton.click();
+																			
+										//Click on close icon 		
+										                                                      
+										WebElement  getCloseIcon = driver.findElement(
+												By.xpath("/html/body/div[3]/div/div[1]/div/div/div/button"));
+																																						
+										// /html/body/div[3]/div/div[1]/div/div/div/button/svg
+										getCloseIcon.click();
+										
+																				
+									}
+
+								}
+							}
+						}
+					}
+				} else {
+					System.out.println("No query parameters found in the URL.");
+				}
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+
 		String Act_StyleTitle = driver.getTitle();
-		
-		System.out.println(Act_StyleTitle);	
-	
-		driver.close();
+
+		System.out.println(Act_StyleTitle);
+
+		// driver.close();
 	}
+
+	public static WebDriver getDriver() {
+		// TODO Auto-generated method stub
+		return driver;
+	}
+
 
 }

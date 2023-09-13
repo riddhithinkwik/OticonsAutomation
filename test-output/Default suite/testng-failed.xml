@@ -5,9 +5,9 @@
     <classes>
       <class name="first.DashboardPage">
         <methods>
-          <include name="dashboardpage"/>
           <include name="Loginpage"/>
           <include name="openOticons"/>
+          <include name="stylepage"/>
         </methods>
       </class> <!-- first.DashboardPage -->
     </classes>
